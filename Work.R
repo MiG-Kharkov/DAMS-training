@@ -1,4 +1,6 @@
 install.packages("caTools")
+
+#clear global environment
 rm(list = ls())
 library(caTools)
 library("ISLR")
@@ -8,9 +10,11 @@ dataset <-read.csv("50_Startups.csv")
 
 #create the dummy variables
 dummy_matrix <- model.matrix(~ State, data = dataset)
+
+#combine dummy and other variable with dataset without State factor
 dataset <- cbind(dataset[, -4], Florida = dummy_matrix[,2], NY= dummy_matrix[,3])
 
-
+#split the dataset into train and test sets
 set.seed(123)
 split = sample.split(dataset$Profit, 0.8)
 training <- dataset[split, ]
@@ -158,9 +162,11 @@ pred1 <- predict(modelFit1, type = "response", newdata = testing[-3])
 y_hat <- ifelse(pred1>0.5, 1, 0)
 y_hat <- as.factor(y_hat)
 
+#create the same model using caret library
 library(caret)
 modelFit2 <- train(Purchased ~.- isMale,data=training, method="glm")
 pred2 <- predict(modelFit2, newdata = testing)
 
+#check the result using confusion matrix for both models
 confusionMatrix(testing$Purchased, y_hat)
 confusionMatrix(testing$Purchased, pred2)
